@@ -4,22 +4,48 @@ import (
 	"flag"
 	"log"
 	"net/http"
-	"triple-s/pkg/logger"
+	"triple-s/internal/logger"
+	"triple-s/internal/server"
 )
+
+// TODO: Создать HTTP-сервер, который будет слушать определённый порт.
+
+// TODO: Реализовать маршрутизацию для обработки PUT-запросов на путь /{BucketName}.
+
+// TODO: Извлечь имя бакета из пути запроса.
+
+// TODO: Реализовать функцию для проверки валидности имени бакета:
+// Имя должно быть длиной от 3 до 63 символов.
+// Должно содержать только маленькие буквы, цифры, дефисы и точки.
+
+// TODO: Реализовать проверку уникальности имени бакета:
+// Сохранять созданные имена бакетов в память (например, используя map).
+// Вернуть ошибку 409 Conflict, если бакет с таким именем уже существует.
+
+// TODO: Создать директорию для нового бакета на файловой системе.
+// Использовать os.Mkdir для создания директории.
+
+// TODO: Реализовать функцию для записи метаданных бакета в CSV файл:
+// Открыть или создать файл buckets.csv.
+// Записать имя созданного бакета и его статус (например, "created").
+
+// TODO: Если запись в CSV файл успешна, вернуть ответ 200 OK с информацией о созданном бакете.
+
+// TODO: Если имя некорректное, вернуть 400 Bad Request.
+
+// TODO: Если создание бакета не удалось (например, ошибка при создании директории), вернуть 500 Internal Server Error.
+
+// TODO: Добавить обработку всех других HTTP-методов, чтобы они возвращали 405 Method Not Allowed, если запрос не является PUT.
 
 func logRequestMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		log.Printf("[REQUEST] %s %s from %s", r.Method, r.URL.Path, r.RemoteAddr) // Логируем метод, путь и IP-адрес
-		next.ServeHTTP(w, r)                                                      // Вызываем следующий обработчик
+		log.Printf("[REQUEST] %s %s from %s", r.Method, r.URL.Path, r.RemoteAddr)
+		next.ServeHTTP(w, r)
 	})
 }
 
 func home(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("SHERIII SHERIII GOOO"))
-}
-
-func gay(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("YOU ARE GAY"))
 }
 
 func main() {
@@ -36,7 +62,7 @@ func main() {
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("/", home)
-	mux.HandleFunc("/gay", gay)
+	mux.HandleFunc("/health", server.HealthHandler)
 
 	loggedMux := logRequestMiddleware(mux)
 
