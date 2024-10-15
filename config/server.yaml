@@ -1,0 +1,15 @@
+env:"local"
+
+http_server:  
+  port: "4400"
+  data_directory: "./data"
+  read_timeout: 4s
+  write_timeout: 4s
+  idle_timeout: 60s
+
+logging:
+  log_file: "./logs/triple-s.log"
+
+storage:
+  max_file_size: "10MB"
+  allow_overwrite: true
