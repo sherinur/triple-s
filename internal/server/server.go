@@ -19,6 +19,8 @@ func New(config *Config) *Server {
 	}
 }
 
+// TODO: Продолжить по видео REST API на Golang
+
 // Start the server
 func (s *Server) Start() error {
 	s.logger.PrintfInfoMsg("Starting server on port " + s.config.port)
