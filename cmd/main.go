@@ -2,10 +2,9 @@ package main
 
 import (
 	"flag"
-	"log"
-	"net/http"
+	"fmt"
+	"os"
 
-	"triple-s/internal/logger"
 	"triple-s/internal/server"
 )
 
@@ -38,28 +37,27 @@ import (
 
 // TODO: Добавить обработку всех других HTTP-методов, чтобы они возвращали 405 Method Not Allowed, если запрос не является PUT.
 
+var (
+	configPath string
+	port       string
+	dir        string
+)
+
+func init() {
+	flag.StringVar(&port, "port", "4400", "Port number")
+	flag.StringVar(&dir, "dir", ".", "Path to the directory")
+	flag.StringVar(&configPath, "cfg", "configs/server.yaml", "Path to config file")
+}
+
 func main() {
-	var err error
-
-	port := flag.String("port", "4400", "Port number")
-	dir := flag.String("dir", ".", "Path to the directory")
-
 	flag.Parse()
 
-	logger.PrintfInfoMsg("Starting server on port :" + *port)
-	logger.PrintfInfoMsg("Path to the directory set: " + *dir)
+	port = ":" + port
 
-	mux := http.NewServeMux()
-
-	mux.HandleFunc("GET /health", server.HandleHealth)
-	mux.HandleFunc("GET /", server.HandleListBuckets)
-	mux.HandleFunc("PUT /{BucketName}", server.HandleCreateBucket)
-	mux.HandleFunc("DELETE /{BucketName}", server.HandleDeleteBucket)
-
-	loggedMux := logger.LogRequestMiddleware(mux)
-
-	err = http.ListenAndServe(":"+*port, loggedMux)
+	apiServer := server.New(server.NewConfig(configPath, port, dir))
+	err := apiServer.Start()
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println(err)
+		os.Exit(1)
 	}
 }
