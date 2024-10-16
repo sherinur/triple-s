@@ -4,6 +4,7 @@ import (
 	"flag"
 	"log"
 	"net/http"
+
 	"triple-s/internal/logger"
 	"triple-s/internal/server"
 )
@@ -37,17 +38,6 @@ import (
 
 // TODO: Добавить обработку всех других HTTP-методов, чтобы они возвращали 405 Method Not Allowed, если запрос не является PUT.
 
-func logRequestMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		log.Printf("[REQUEST] %s %s from %s", r.Method, r.URL.Path, r.RemoteAddr)
-		next.ServeHTTP(w, r)
-	})
-}
-
-func home(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("SHERIII SHERIII GOOO"))
-}
-
 func main() {
 	var err error
 
@@ -62,11 +52,11 @@ func main() {
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("GET /health", server.HandleHealth)
-	mux.HandleFunc("GET /", server.ListBuckets)
+	mux.HandleFunc("GET /", server.HandleListBuckets)
 	mux.HandleFunc("PUT /{BucketName}", server.HandleCreateBucket)
-	mux.HandleFunc("DELETE /{BucketName}", server.HandleHealth)
+	mux.HandleFunc("DELETE /{BucketName}", server.HandleDeleteBucket)
 
-	loggedMux := logRequestMiddleware(mux)
+	loggedMux := logger.LogRequestMiddleware(mux)
 
 	err = http.ListenAndServe(":"+*port, loggedMux)
 	if err != nil {

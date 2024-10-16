@@ -4,6 +4,8 @@ MAIN_FILE=cmd/main.go
 
 
 build:
+	gofumpt -l -w .
+	go mod tidy
 	go build -o $(BINARY_NAME) $(MAIN_FILE)
 
 run: build
@@ -11,6 +13,8 @@ run: build
 
 clean:
 	@echo "Cleaning up..."
+	gofumpt -l -w .
+	go mod tidy
 	rm -f $(BINARY_NAME)
 
 help:
