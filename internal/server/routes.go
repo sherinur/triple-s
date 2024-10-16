@@ -1,6 +1,8 @@
 package server
 
-import "net/http"
+import (
+	"net/http"
+)
 
 func HandleHealth(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
@@ -12,6 +14,9 @@ func HandleNotFound(w http.ResponseWriter, r *http.Request) {
 }
 
 func HandleCreateBucket(w http.ResponseWriter, r *http.Request) {
+	bucketNameString := r.URL.Query().Get("BucketName")
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("XML: BUCKET CREATED: " + bucketNameString))
 }
 
 func HandleListBuckets(w http.ResponseWriter, r *http.Request) {
@@ -20,5 +25,7 @@ func HandleListBuckets(w http.ResponseWriter, r *http.Request) {
 }
 
 func HandleDeleteBucket(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.)
+	bucketNameString := r.URL.Query().Get("BucketName")
+	w.WriteHeader(http.StatusNoContent)
+	w.Write([]byte("XML: BUCKET DELETED: " + bucketNameString))
 }

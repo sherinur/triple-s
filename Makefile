@@ -24,5 +24,9 @@ help:
 	@echo "  make clean   - Remove the compiled binary"
 	@echo "  make help    - Show this help message"
 
+commit:
+	git add .
+	git commit -m "Commit $$(date '+%Y-%m-%d %H:%M:%S')"
+	git push
 
 .PHONY: build run clean help
