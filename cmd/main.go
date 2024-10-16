@@ -61,8 +61,10 @@ func main() {
 
 	mux := http.NewServeMux()
 
-	mux.HandleFunc("/", home)
-	mux.HandleFunc("/health", server.HealthHandler)
+	mux.HandleFunc("GET /health", server.HandleHealth)
+	mux.HandleFunc("GET /", server.ListBuckets)
+	mux.HandleFunc("PUT /{BucketName}", server.HandleCreateBucket)
+	mux.HandleFunc("DELETE /{BucketName}", server.HandleHealth)
 
 	loggedMux := logRequestMiddleware(mux)
 

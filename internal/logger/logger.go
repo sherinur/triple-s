@@ -19,3 +19,5 @@ func PrintfDebugMsg(mes string, args ...interface{}) {
 func PrintfErrorMsg(mes string, args ...interface{}) {
 	printfMsg("[ERROR]", 0, mes, args...)
 }
+
+func PrintRequest
