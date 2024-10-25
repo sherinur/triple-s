@@ -31,7 +31,7 @@ func (s *Server) Start() error {
 
 	mux.HandleFunc("GET /health", HandleHealth)
 	mux.HandleFunc("GET /", HandleListBuckets)
-	mux.HandleFunc("PUT /{BucketName}", HandleCreateBucket)
+	mux.HandleFunc("PUT /{BucketName}", s.HandleCreateBucket)
 	mux.HandleFunc("DELETE /{BucketName}", HandleDeleteBucket)
 
 	loggedMux := s.logger.LogRequestMiddleware(mux)

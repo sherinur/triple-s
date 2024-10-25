@@ -1,5 +1,11 @@
 package utils
 
+import (
+	"fmt"
+	"os"
+	"path/filepath"
+)
+
 func ValidateBucketName(name string) bool {
 	// TODO: Bucket names must be unique across the system.
 	// TODO: Names should be between 3 and 63 characters long.
@@ -12,4 +18,35 @@ func ValidateBucketName(name string) bool {
 
 func IsUniqueBucketName(name string) bool {
 	return true
+}
+
+func CreateDir(dirName string) error {
+	if dirName == "" {
+		return fmt.Errorf("error of CreateDir: dirName is empty")
+	}
+
+	execPath, err := GetExecPath()
+	if err != nil {
+		return fmt.Errorf("error of GetExecPath(): %w", err)
+	}
+
+	execDir := filepath.Dir(execPath)
+	dataDirPath := filepath.Join(execDir, dirName)
+
+	err = os.MkdirAll(dataDirPath, os.ModePerm)
+	if err != nil {
+		return fmt.Errorf("error of CreateDir: %w", err)
+	}
+
+	return nil
+}
+
+// GetExecPath() returns path of executable file
+func GetExecPath() (string, error) {
+	execPath, err := os.Executable()
+	if err != nil {
+		return "", err
+	}
+
+	return execPath, nil
 }
