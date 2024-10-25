@@ -16,10 +16,6 @@ func IsValidBucketName(name string) bool {
 	return true
 }
 
-func IsUniqueBucketName(name string) bool {
-	return true
-}
-
 // CreateDir() creates dir and returns error
 func CreateDir(dirName string) error {
 	if dirName == "" {

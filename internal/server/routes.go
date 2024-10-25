@@ -24,7 +24,9 @@ func (s *Server) HandleCreateBucket(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !utils.IsUniqueBucketName(bucketName) {
+	utils.ParseCSV("buckets.csv")
+
+	if utils.FindBucketByName(bucketName) {
 		w.WriteHeader(http.StatusConflict)
 		s.logger.PrintfInfoMsg("Bucket with name '" + bucketName + "' is not unique")
 		return

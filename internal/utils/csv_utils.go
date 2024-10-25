@@ -28,22 +28,56 @@ func CreateBucketMeta(name string) error {
 	return nil
 }
 
+func FindBucketByName(name string, records [][]string) bool {
+	for _, line := range records {
+		if line[0] == name {
+			return true
+		}
+	}
+
+	return false
+}
+
+func ParseCSV(filename string) ([][]string, error) {
+	execPath, err := os.Executable()
+	if err != nil {
+		return nil, err
+	}
+
+	filepath := filepath.Join(filepath.Dir(execPath), "data", filename)
+
+	file, err := os.Open(filepath)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	reader := csv.NewReader(file)
+
+	records, err := reader.ReadAll()
+	if err != nil {
+		return nil, err
+	}
+
+	return records, nil
+}
+
 func openCSV(name string) (*csv.Writer, *os.File, error) {
 	execPath, err := os.Executable()
 	if err != nil {
-		return nil, nil, fmt.Errorf("ошибка получения пути к исполняемому файлу: %w", err)
+		return nil, nil, fmt.Errorf("error of getting exec path: %w", err)
 	}
 	dataDirPath := filepath.Join(filepath.Dir(execPath), "data")
 
 	if err := os.MkdirAll(dataDirPath, os.ModePerm); err != nil {
-		return nil, nil, fmt.Errorf("ошибка создания папки data: %w", err)
+		return nil, nil, fmt.Errorf("error of dir creation 'data': %w", err)
 	}
 
 	filePath := filepath.Join(dataDirPath, name)
 
 	file, err := os.OpenFile(filePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o644)
 	if err != nil {
-		return nil, nil, fmt.Errorf("ошибка открытия или создания файла buckets.csv: %w", err)
+		return nil, nil, fmt.Errorf("error of opening or creating file - 'buckets.csv': %w", err)
 	}
 
 	bufferedWriter := bufio.NewWriter(file)
