@@ -29,13 +29,15 @@ func (s *Server) HandleCreateBucket(w http.ResponseWriter, r *http.Request) {
 		s.logger.PrintfInfoMsg("Bucket with name '" + bucketName + "' is not unique")
 		return
 	}
-
-	// TODO: Create ./data/buckets.csv metadata file
-
 	// TODO: Create dir using config data_directory
-	utils.CreateDir("data")
-	s.logger.PrintfInfoMsg("Bucket with name '" + bucketName + "' is created")
+	// TODO: Create ./data/buckets.csv metadata file
+	err := utils.CreateBucketMeta(bucketName)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		s.logger.PrintfErrorMsg(err.Error())
+	}
 
+	s.logger.PrintfInfoMsg("Bucket with name '" + bucketName + "' is created")
 	w.WriteHeader(http.StatusOK)
 }
 
