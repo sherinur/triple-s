@@ -21,7 +21,6 @@ func HandleCreateBucket(w http.ResponseWriter, r *http.Request) {
 
 func HandleListBuckets(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("XML: LIST OF BUCKETS"))
 }
 
 func HandleDeleteBucket(w http.ResponseWriter, r *http.Request) {
@@ -29,3 +28,5 @@ func HandleDeleteBucket(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
 	w.Write([]byte("XML: BUCKET DELETED: " + bucketNameString))
 }
+
+func 
