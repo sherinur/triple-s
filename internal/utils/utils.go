@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 )
 
-func ValidateBucketName(name string) bool {
+func IsValidBucketName(name string) bool {
 	// TODO: Bucket names must be unique across the system.
 	// TODO: Names should be between 3 and 63 characters long.
 	// TODO: Only lowercase letters, numbers, hyphens (-), and dots (.) are allowed.
@@ -20,6 +20,7 @@ func IsUniqueBucketName(name string) bool {
 	return true
 }
 
+// CreateDir() creates dir and returns error
 func CreateDir(dirName string) error {
 	if dirName == "" {
 		return fmt.Errorf("error of CreateDir: dirName is empty")

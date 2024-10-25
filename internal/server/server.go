@@ -29,10 +29,10 @@ func (s *Server) Start() error {
 
 	mux := http.NewServeMux()
 
-	mux.HandleFunc("GET /health", HandleHealth)
-	mux.HandleFunc("GET /", HandleListBuckets)
+	mux.HandleFunc("GET /health", s.HandleHealth)
+	mux.HandleFunc("GET /", s.HandleListBuckets)
 	mux.HandleFunc("PUT /{BucketName}", s.HandleCreateBucket)
-	mux.HandleFunc("DELETE /{BucketName}", HandleDeleteBucket)
+	mux.HandleFunc("DELETE /{BucketName}", s.HandleDeleteBucket)
 
 	loggedMux := s.logger.LogRequestMiddleware(mux)
 
