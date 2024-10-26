@@ -10,6 +10,10 @@ import (
 	"triple-s/internal/types"
 )
 
+// func CreateObjectMeta(name string) error {
+// 	object := types.NewObject(name)
+// }
+
 func CreateBucketMeta(name string) error {
 	bucket := types.NewBucket(name)
 

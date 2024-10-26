@@ -9,6 +9,15 @@ type Object struct {
 	lastModifiedTime time.Time `xml:"LastModifiedTime"`
 }
 
+func NewObject() *Object {
+	return &Object{
+		objectKey:        "120310230",
+		size:             "10MB",
+		contentType:      "img",
+		lastModifiedTime: time.Now(),
+	}
+}
+
 func (o *Object) GetObjectKey() string {
 	return o.objectKey
 }

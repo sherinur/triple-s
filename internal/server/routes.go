@@ -24,20 +24,26 @@ func (s *Server) HandleCreateBucket(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	utils.ParseCSV("buckets.csv")
+	records, err := utils.ParseCSV("buckets.csv")
+	if err != nil {
+		return
+	}
 
-	if utils.FindBucketByName(bucketName) {
+	if utils.FindBucketByName(bucketName, records) {
 		w.WriteHeader(http.StatusConflict)
 		s.logger.PrintfInfoMsg("Bucket with name '" + bucketName + "' is not unique")
 		return
 	}
+
 	// TODO: Create dir using config data_directory
 	// TODO: Create ./data/buckets.csv metadata file
-	err := utils.CreateBucketMeta(bucketName)
+	err = utils.CreateBucketMeta(bucketName)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		s.logger.PrintfErrorMsg(err.Error())
 	}
+
+	utils.CreateDir(bucketName)
 
 	s.logger.PrintfInfoMsg("Bucket with name '" + bucketName + "' is created")
 	w.WriteHeader(http.StatusOK)
