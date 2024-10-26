@@ -15,7 +15,7 @@ type Server struct {
 func New(config *Config) *Server {
 	return &Server{
 		config: config,
-		logger: logger.New(),
+		logger: logger.New(true),
 	}
 }
 

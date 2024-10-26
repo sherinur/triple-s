@@ -20,30 +20,31 @@ func (s *Server) HandleCreateBucket(w http.ResponseWriter, r *http.Request) {
 
 	if !utils.IsValidBucketName(bucketName) {
 		w.WriteHeader(http.StatusBadRequest)
-		s.logger.PrintfInfoMsg("Bucket with name '" + bucketName + "' is not valid")
+		s.logger.PrintfDebugMsg("Bucket with name '" + bucketName + "' is not valid")
 		return
 	}
 
-	records, err := utils.ParseCSV("buckets.csv")
+	records, err := utils.ParseCSV("./data/buckets.csv")
 	if err != nil {
+		s.logger.PrintfErrorMsg("Error reading CSV: " + err.Error())
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
 	if utils.FindBucketByName(bucketName, records) {
 		w.WriteHeader(http.StatusConflict)
-		s.logger.PrintfInfoMsg("Bucket with name '" + bucketName + "' is not unique")
+		s.logger.PrintfDebugMsg("Bucket with name '" + bucketName + "' is not unique")
 		return
 	}
 
 	// TODO: Create dir using config data_directory
 	// TODO: Create ./data/buckets.csv metadata file
-	err = utils.CreateBucketMeta(bucketName)
+	err = utils.CreateBucket(bucketName)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		s.logger.PrintfErrorMsg(err.Error())
+		return
 	}
-
-	utils.CreateDir(bucketName)
 
 	s.logger.PrintfInfoMsg("Bucket with name '" + bucketName + "' is created")
 	w.WriteHeader(http.StatusOK)

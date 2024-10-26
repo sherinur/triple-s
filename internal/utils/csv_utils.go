@@ -14,19 +14,30 @@ import (
 // 	object := types.NewObject(name)
 // }
 
-func CreateBucketMeta(name string) error {
+func CreateBucket(name string) error {
 	bucket := types.NewBucket(name)
 
 	csvWriter, file, err := openCSV("buckets.csv")
 	if err != nil {
 		return fmt.Errorf("error of opening or creating a bucket metadata: %w", err)
 	}
-	defer file.Close()
-	defer csvWriter.Flush()
+	defer func() {
+		file.Close()
+	}()
 
+	// Записываем данные в CSV
 	data := convertBucketToArr(bucket)
 	if err := csvWriter.Write(data); err != nil {
 		return fmt.Errorf("error of writing a bucket metadata: %w", err)
+	}
+
+	// Сбрасываем буфер в файл
+	csvWriter.Flush()
+
+	// Создаем директорию для bucket
+	err = CreateDir("./data/" + name)
+	if err != nil {
+		return fmt.Errorf("error of opening or creating a bucket dir: %w", err)
 	}
 
 	return nil
@@ -42,25 +53,26 @@ func FindBucketByName(name string, records [][]string) bool {
 	return false
 }
 
-func ParseCSV(filename string) ([][]string, error) {
-	execPath, err := os.Executable()
-	if err != nil {
+func ParseCSV(filePath string) ([][]string, error) {
+	dirPath := filepath.Dir(filePath)
+
+	// Создаем директорию, если её нет
+	if err := CreateDir(dirPath); err != nil {
 		return nil, err
 	}
 
-	filepath := filepath.Join(filepath.Dir(execPath), "data", filename)
-
-	file, err := os.Open(filepath)
+	// Открываем или создаем CSV файл
+	file, err := os.OpenFile(filePath, os.O_RDWR|os.O_CREATE, 0o644)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("не удалось открыть или создать файл: %w", err)
 	}
 	defer file.Close()
 
+	// Читаем записи CSV
 	reader := csv.NewReader(file)
-
 	records, err := reader.ReadAll()
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("ошибка чтения CSV: %w", err)
 	}
 
 	return records, nil
@@ -71,21 +83,24 @@ func openCSV(name string) (*csv.Writer, *os.File, error) {
 	if err != nil {
 		return nil, nil, fmt.Errorf("error of getting exec path: %w", err)
 	}
-	dataDirPath := filepath.Join(filepath.Dir(execPath), "data")
 
+	// Определяем путь к директории data
+	dataDirPath := filepath.Join(filepath.Dir(execPath), "data")
 	if err := os.MkdirAll(dataDirPath, os.ModePerm); err != nil {
 		return nil, nil, fmt.Errorf("error of dir creation 'data': %w", err)
 	}
 
+	// Путь к файлу buckets.csv
 	filePath := filepath.Join(dataDirPath, name)
 
+	// Открываем файл для добавления данных
 	file, err := os.OpenFile(filePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o644)
 	if err != nil {
 		return nil, nil, fmt.Errorf("error of opening or creating file - 'buckets.csv': %w", err)
 	}
 
+	// Буферизация для повышения производительности записи
 	bufferedWriter := bufio.NewWriter(file)
-
 	csvWriter := csv.NewWriter(bufferedWriter)
 
 	return csvWriter, file, nil

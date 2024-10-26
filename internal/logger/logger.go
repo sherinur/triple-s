@@ -13,10 +13,14 @@ type iLogger interface {
 	LogRequestMiddleware(http.Handler) http.Handler
 }
 
-type Logger struct{}
+type Logger struct {
+	debugMode bool
+}
 
-func New() *Logger {
-	return &Logger{}
+func New(debugMode bool) *Logger {
+	return &Logger{
+		debugMode: debugMode,
+	}
 }
 
 func printfMsg(level string, mes string, args ...interface{}) {
@@ -28,7 +32,9 @@ func (l *Logger) PrintfInfoMsg(mes string, args ...interface{}) {
 }
 
 func (l *Logger) PrintfDebugMsg(mes string, args ...interface{}) {
-	printfMsg("[DEBUG]", mes, args...)
+	if l.debugMode {
+		printfMsg("[DEBUG]", mes, args...)
+	}
 }
 
 func (l *Logger) PrintfErrorMsg(mes string, args ...interface{}) {

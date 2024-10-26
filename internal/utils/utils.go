@@ -3,7 +3,6 @@ package utils
 import (
 	"fmt"
 	"os"
-	"path/filepath"
 )
 
 func IsValidBucketName(name string) bool {
@@ -16,25 +15,13 @@ func IsValidBucketName(name string) bool {
 	return true
 }
 
-// CreateDir() creates dir and returns error
-func CreateDir(dirName string) error {
-	if dirName == "" {
-		return fmt.Errorf("error of CreateDir: dirName is empty")
+func CreateDir(dirPath string) error {
+	if dirPath == "" {
+		return fmt.Errorf("error of CreateDir: dirPath is empty")
 	}
-
-	execPath, err := GetExecPath()
-	if err != nil {
-		return fmt.Errorf("error of GetExecPath(): %w", err)
-	}
-
-	execDir := filepath.Dir(execPath)
-	dataDirPath := filepath.Join(execDir, dirName)
-
-	err = os.MkdirAll(dataDirPath, os.ModePerm)
-	if err != nil {
+	if err := os.MkdirAll(dirPath, os.ModePerm); err != nil {
 		return fmt.Errorf("error of CreateDir: %w", err)
 	}
-
 	return nil
 }
 
@@ -42,8 +29,7 @@ func CreateDir(dirName string) error {
 func GetExecPath() (string, error) {
 	execPath, err := os.Executable()
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("error of GetExecPath: %w", err)
 	}
-
 	return execPath, nil
 }
