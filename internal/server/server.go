@@ -29,11 +29,19 @@ func (s *Server) Start() error {
 
 	mux := http.NewServeMux()
 
+	// basic routes
 	mux.HandleFunc("GET /health", s.HandleHealth)
+
+	// bucket routes
 	mux.HandleFunc("GET /{BucketName}", s.HandleGetBucket)
 	mux.HandleFunc("GET /", s.HandleListBuckets)
 	mux.HandleFunc("PUT /{BucketName}", s.HandleCreateBucket)
 	mux.HandleFunc("DELETE /{BucketName}", s.HandleDeleteBucket)
+
+	// object routes
+	mux.HandleFunc("PUT /{BucketName}/{ObjectKey}", s.HandlePutObject)
+	mux.HandleFunc("GET /{BucketName}/{ObjectKey}", s.HandleGetObject)
+	mux.HandleFunc("DELETE /{BucketName}/{ObjectKey}", s.HandleDeleteObject)
 
 	loggedMux := s.logger.LogRequestMiddleware(mux)
 

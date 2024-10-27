@@ -3,6 +3,7 @@ package server
 import (
 	"encoding/xml"
 	"net/http"
+	"strconv"
 
 	"triple-s/internal/types"
 
@@ -262,7 +263,52 @@ func (s *Server) HandleDeleteBucket(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
 }
 
-// func (s *Server) HandlePutObject(w http.ResponseWriter, r *http.Request) {
-// 	bucketName := r.PathValue("BucketName")
-// 	objectName := r.PathValue("ObjectName")
-// }
+// ? CONTINUE HERE
+
+func (s *Server) HandlePutObject(w http.ResponseWriter, r *http.Request) {
+	bucketName := r.PathValue("BucketName")
+	objectKey := r.PathValue("ObjectKey")
+
+	// // TODO: Check if the request has content-type (error in other case), and get the content-type
+	// TODO: Check if the bucket exists
+	// TODO: Validate the object key (check is it valid)
+	// TODO: Update objects.csv of the bucket
+
+	contentType := r.Header.Get("Content-Type")
+	if contentType == "" {
+		w.WriteHeader(http.StatusUnsupportedMediaType)
+
+		errorResponse := types.NewErrorResponse("Unsupported Media Type", "The request is missing the Content-Type header.")
+		output, err := xml.MarshalIndent(errorResponse, "", "  ")
+		if err != nil {
+			s.logger.PrintfErrorMsg("error encoding XML: " + err.Error())
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		s.logger.PrintfDebugMsg("(415 Unsupported Media Type) The request is missing the Content-Type header")
+
+		w.Write(output)
+		return
+	}
+
+	sizeStr := strconv.FormatInt(r.ContentLength, 10)
+	utils.CreateObject(bucketName, objectKey, sizeStr, contentType)
+
+	w.WriteHeader(http.StatusOK)
+}
+
+func (s *Server) HandleGetObject(w http.ResponseWriter, r *http.Request) {
+	// TODO: Check if the bucket exists
+	// TODO: Check if the object exists
+	// TODO: Return the binary content of file
+	// TODO: Set Content-Type header
+}
+
+func (s *Server) HandleDeleteObject(w http.ResponseWriter, r *http.Request) {
+	// TODO: Check if the bucket exists
+	// TODO: Check if the object exists
+	// TODO: Delete object file
+	// TODO: Delete object metadata
+	w.WriteHeader(http.StatusNoContent)
+}
