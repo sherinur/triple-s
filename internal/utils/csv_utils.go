@@ -43,7 +43,13 @@ func CreateBucket(name string) error {
 func CreateObject(bucketName, objectKey, size, contentType string) error {
 	object := types.NewObject(objectKey, size, contentType)
 
-	csvWriter, file, err := OpenCSV("./data/"+bucketName+"/objects.csv", true)
+	// Проверяем и создаем директорию для объекта, если она отсутствует
+	objectDirPath := "./data/" + bucketName
+	if err := os.MkdirAll(objectDirPath, os.ModePerm); err != nil {
+		return fmt.Errorf("error creating object directory: %w", err)
+	}
+
+	csvWriter, file, err := OpenCSV(objectDirPath+"/objects.csv", true)
 	if err != nil {
 		return fmt.Errorf("error of opening or creating a bucket metadata: %w", err)
 	}
@@ -53,9 +59,10 @@ func CreateObject(bucketName, objectKey, size, contentType string) error {
 
 	data := ConvertObjectToArr(object)
 	if err := csvWriter.Write(data); err != nil {
-		return fmt.Errorf("error of writing a object metadata: %w", err)
+		return fmt.Errorf("error of writing an object metadata: %w", err)
 	}
 
+	// Сбрасываем данные для записи в файл
 	csvWriter.Flush()
 
 	return nil
@@ -108,7 +115,7 @@ func OpenCSV(name string, appendMode bool) (*csv.Writer, *os.File, error) {
 	return csvWriter, file, nil
 }
 
-func FindBucketByName(name string, records [][]string) bool {
+func FindItemByName(name string, records [][]string) bool {
 	for _, line := range records {
 		if line[0] == name {
 			return true
