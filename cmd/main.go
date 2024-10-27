@@ -14,10 +14,26 @@ var (
 	dir        string
 )
 
+func CustomUsage() {
+	fmt.Println(`Simple Storage Service.
+
+**Usage:**
+    triple-s [-port <N>] [-dir <S>] [-cfg <S>] 
+    triple-s --help
+
+**Options:**
+- --help     Show this screen.
+- --port N   Port number
+- --dir S    Path to the directory
+- --cfg S    Path to the config file`)
+}
+
 func init() {
 	flag.StringVar(&port, "port", "4400", "Port number")
 	flag.StringVar(&dir, "dir", ".", "Path to the directory")
-	flag.StringVar(&configPath, "cfg", "configs/server.yaml", "Path to config file")
+	flag.StringVar(&configPath, "cfg", "configs/server.yaml", "Path to the config file")
+
+	flag.Usage = CustomUsage
 }
 
 func main() {

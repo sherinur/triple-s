@@ -1,4 +1,4 @@
-env:"local"
+env: "local"
 
 http_server:  
   port: "4400"
