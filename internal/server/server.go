@@ -30,6 +30,7 @@ func (s *Server) Start() error {
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("GET /health", s.HandleHealth)
+	mux.HandleFunc("GET /{BucketName}", s.HandleGetBucket)
 	mux.HandleFunc("GET /", s.HandleListBuckets)
 	mux.HandleFunc("PUT /{BucketName}", s.HandleCreateBucket)
 	mux.HandleFunc("DELETE /{BucketName}", s.HandleDeleteBucket)

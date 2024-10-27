@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"time"
 
 	"triple-s/internal/types"
 )
@@ -25,16 +26,13 @@ func CreateBucket(name string) error {
 		file.Close()
 	}()
 
-	// Записываем данные в CSV
-	data := convertBucketToArr(bucket)
+	data := ConvertBucketToArr(bucket)
 	if err := csvWriter.Write(data); err != nil {
 		return fmt.Errorf("error of writing a bucket metadata: %w", err)
 	}
 
-	// Сбрасываем буфер в файл
 	csvWriter.Flush()
 
-	// Создаем директорию для bucket
 	err = CreateDir("./data/" + name)
 	if err != nil {
 		return fmt.Errorf("error of opening or creating a bucket dir: %w", err)
@@ -56,19 +54,16 @@ func FindBucketByName(name string, records [][]string) bool {
 func ParseCSV(filePath string) ([][]string, error) {
 	dirPath := filepath.Dir(filePath)
 
-	// Создаем директорию, если её нет
 	if err := CreateDir(dirPath); err != nil {
 		return nil, err
 	}
 
-	// Открываем или создаем CSV файл
 	file, err := os.OpenFile(filePath, os.O_RDWR|os.O_CREATE, 0o644)
 	if err != nil {
 		return nil, fmt.Errorf("не удалось открыть или создать файл: %w", err)
 	}
 	defer file.Close()
 
-	// Читаем записи CSV
 	reader := csv.NewReader(file)
 	records, err := reader.ReadAll()
 	if err != nil {
@@ -84,41 +79,53 @@ func openCSV(name string) (*csv.Writer, *os.File, error) {
 		return nil, nil, fmt.Errorf("error of getting exec path: %w", err)
 	}
 
-	// Определяем путь к директории data
 	dataDirPath := filepath.Join(filepath.Dir(execPath), "data")
 	if err := os.MkdirAll(dataDirPath, os.ModePerm); err != nil {
 		return nil, nil, fmt.Errorf("error of dir creation 'data': %w", err)
 	}
 
-	// Путь к файлу buckets.csv
 	filePath := filepath.Join(dataDirPath, name)
 
-	// Открываем файл для добавления данных
 	file, err := os.OpenFile(filePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o644)
 	if err != nil {
 		return nil, nil, fmt.Errorf("error of opening or creating file - 'buckets.csv': %w", err)
 	}
 
-	// Буферизация для повышения производительности записи
 	bufferedWriter := bufio.NewWriter(file)
 	csvWriter := csv.NewWriter(bufferedWriter)
 
 	return csvWriter, file, nil
 }
 
-func convertBucketToArr(b *types.Bucket) []string {
-	name := b.GetName()
-	creationTime := b.GetCreationTime()
-	lastModifiedTime := b.GetLastModifiedTime()
-	status := b.GetStatus()
-
+func ConvertBucketToArr(b *types.Bucket) []string {
 	// formatting Time to string
-	creationTimeStr := creationTime.Format("2006-01-02T15:04:05-07:00")
-	lastModifiedTimeStr := lastModifiedTime.Format("2006-01-02T15:04:05-07:00")
+	creationTimeStr := b.CreationTime.Format("2006-01-02T15:04:05-07:00")
+	lastModifiedTimeStr := b.LastModifiedTime.Format("2006-01-02T15:04:05-07:00")
 
 	var data []string
 
-	data = append(data, name, creationTimeStr, lastModifiedTimeStr, status)
+	data = append(data, b.Name, creationTimeStr, lastModifiedTimeStr, b.Status)
 
 	return data
+}
+
+func ConvertArrToBucket(data []string) (types.Bucket, error) {
+	layout := "2006-01-02T15:04:05-07:00"
+
+	t1, err := time.Parse(layout, data[1])
+	if err != nil {
+		return types.Bucket{}, err
+	}
+
+	t2, err := time.Parse(layout, data[2])
+	if err != nil {
+		return types.Bucket{}, err
+	}
+
+	return types.Bucket{
+		Name:             data[0],
+		CreationTime:     t1,
+		LastModifiedTime: t2,
+		Status:           data[3],
+	}, nil
 }
