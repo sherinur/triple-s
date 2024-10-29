@@ -52,6 +52,10 @@ func (s *Server) HandlePutObject(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if isBucketExists {
+		s.logger.PrintfDebugMsg(bucketName + " exists.")
+	}
+
 	// parsing objects.csv
 	objectMetaRecords, err := utils.ParseCSV("./data/" + bucketName + "/objects.csv")
 	if err != nil {
