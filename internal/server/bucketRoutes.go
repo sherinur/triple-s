@@ -9,6 +9,8 @@ import (
 )
 
 func (s *Server) HandleGetBucket(w http.ResponseWriter, r *http.Request) {
+	utils.CreateDir(s.config.data_directory)
+
 	bucketName := r.PathValue("BucketName")
 
 	records, err := utils.ParseCSV("./data/buckets.csv")
@@ -72,6 +74,7 @@ func (s *Server) HandleGetBucket(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) HandleCreateBucket(w http.ResponseWriter, r *http.Request) {
+	utils.CreateDir(s.config.data_directory)
 	bucketName := r.PathValue("BucketName")
 
 	// validation
@@ -94,7 +97,10 @@ func (s *Server) HandleCreateBucket(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	records, err := utils.ParseCSV("./data/buckets.csv")
+	// ? CONTINUE HERE
+	// ! Не читает кастомный путь директории конфига
+	// metadata records parsing
+	records, err := utils.ParseCSV(s.config.data_directory + "/buckets.csv")
 	if err != nil {
 		s.logger.PrintfErrorMsg("error reading CSV: " + err.Error())
 		w.WriteHeader(http.StatusInternalServerError)
@@ -146,6 +152,7 @@ func (s *Server) HandleCreateBucket(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) HandleListBuckets(w http.ResponseWriter, r *http.Request) {
+	utils.CreateDir(s.config.data_directory)
 	records, err := utils.ParseCSV("./data/buckets.csv")
 	if err != nil {
 		s.logger.PrintfErrorMsg("error reading CSV: " + err.Error())
@@ -192,6 +199,7 @@ func (s *Server) HandleListBuckets(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) HandleDeleteBucket(w http.ResponseWriter, r *http.Request) {
+	utils.CreateDir(s.config.data_directory)
 	bucketName := r.PathValue("BucketName")
 
 	records, err := utils.ParseCSV("./data/buckets.csv")

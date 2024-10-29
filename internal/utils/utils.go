@@ -32,16 +32,6 @@ func IsValidBucketName(name string) bool {
 	return true
 }
 
-func CreateDir(dirPath string) error {
-	if dirPath == "" {
-		return fmt.Errorf("error of CreateDir: dirPath is empty")
-	}
-	if err := os.MkdirAll(dirPath, os.ModePerm); err != nil {
-		return fmt.Errorf("error of CreateDir: %w", err)
-	}
-	return nil
-}
-
 func RemoveDir(dirPath string) error {
 	if dirPath == "" {
 		return fmt.Errorf("error of RemoveDir: dirPath is empty")
