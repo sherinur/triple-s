@@ -1,8 +1,6 @@
 package utils
 
 import (
-	"fmt"
-	"os"
 	"regexp"
 	"strings"
 )
@@ -30,46 +28,4 @@ func IsValidBucketName(name string) bool {
 	}
 
 	return true
-}
-
-func RemoveDir(dirPath string) error {
-	if dirPath == "" {
-		return fmt.Errorf("error of RemoveDir: dirPath is empty")
-	}
-
-	if err := os.RemoveAll(dirPath); err != nil {
-		return fmt.Errorf("error of RemoveDir: %w", err)
-	}
-
-	return nil
-}
-
-func IsDirEmpty(dirPath string) (bool, error) {
-	info, err := os.Stat(dirPath)
-	if os.IsNotExist(err) {
-		return false, fmt.Errorf("directory does not exist: %s", dirPath)
-	}
-	if err != nil {
-		return false, fmt.Errorf("error accessing directory: %w", err)
-	}
-
-	if !info.IsDir() {
-		return false, fmt.Errorf("%s is not a directory", dirPath)
-	}
-
-	entries, err := os.ReadDir(dirPath)
-	if err != nil {
-		return false, fmt.Errorf("error reading directory: %w", err)
-	}
-
-	return len(entries) == 0, nil
-}
-
-// GetExecPath() returns path of executable file
-func GetExecPath() (string, error) {
-	execPath, err := os.Executable()
-	if err != nil {
-		return "", fmt.Errorf("error of GetExecPath: %w", err)
-	}
-	return execPath, nil
 }

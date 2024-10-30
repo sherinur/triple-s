@@ -17,7 +17,11 @@ type CSVFile struct {
 	Reader *csv.Reader
 }
 
-var ErrNotCSV = errors.New("the file is not in CSV format")
+var (
+	ErrNotCSV       = errors.New("the file is not in CSV format")
+	ErrDirNotExist  = errors.New("no such directory")
+	ErrFileNotExist = errors.New("no such file")
+)
 
 func OpenCSVForRead(path string) (*CSVFile, error) {
 	if filepath.Ext(path) != ".csv" {
@@ -175,6 +179,27 @@ func FileExists(path string) (bool, error) {
 	return true, nil
 }
 
+// DirEmpty() takes path of the directory as an argument.
+// If directory empty, returns true and nil. False and nil in other case.
+// Returns false and error, if error occurs.
+func IsDirEmpty(path string) (bool, error) {
+	isDirExits, err := FileExists(path)
+	if err != nil {
+		return false, err
+	}
+
+	if !isDirExits {
+		return false, fmt.Errorf(path+" %w", ErrDirNotExist)
+	}
+
+	entries, err := os.ReadDir(path)
+	if err != nil {
+		return false, err
+	}
+
+	return len(entries) == 0, nil
+}
+
 func main() {
 	if len(os.Args) > 1 {
 		switch os.Args[1] {
@@ -305,6 +330,17 @@ func main() {
 				}
 
 				os.Exit(0)
+			}
+		case "empty":
+			if len(os.Args) > 2 {
+				path := os.Args[2]
+
+				isDirEmpty, err := IsDirEmpty(path)
+				if err != nil {
+					fmt.Println(err)
+					os.Exit(1)
+				}
+				fmt.Println(isDirEmpty)
 			}
 
 		default:

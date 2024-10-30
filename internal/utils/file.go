@@ -33,3 +33,46 @@ func CreateDir(path string) error {
 
 	return nil
 }
+
+func RemoveDir(path string) error {
+	if path == "" {
+		return fmt.Errorf("filepath to the directory is empty")
+	}
+
+	if err := os.RemoveAll(path); err != nil {
+		return fmt.Errorf("error of RemoveDir: %w", err)
+	}
+
+	return nil
+}
+
+// DirEmpty() takes path of the directory as an argument.
+// If directory empty, returns true and nil. False and nil in other case.
+// Returns false and error, if error occurs.
+func IsDirEmpty(path string) (bool, error) {
+	isDirExits, err := FileExists(path)
+	if err != nil {
+		return false, err
+	}
+
+	if !isDirExits {
+		return false, fmt.Errorf(path+" %w", ErrDirNotExist)
+	}
+
+	entries, err := os.ReadDir(path)
+	if err != nil {
+		return false, err
+	}
+
+	return len(entries) == 0, nil
+}
+
+// GetExecPath() returns path of executable file
+// Returns error, if error occurs.
+func GetExecPath() (string, error) {
+	execPath, err := os.Executable()
+	if err != nil {
+		return "", fmt.Errorf("error of GetExecPath: %w", err)
+	}
+	return execPath, nil
+}
