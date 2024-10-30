@@ -3,6 +3,7 @@ package utils
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 )
 
 func FileExists(path string) (bool, error) {
@@ -15,6 +16,23 @@ func FileExists(path string) (bool, error) {
 	}
 
 	return true, nil
+}
+
+func CreateFile(path string) error {
+	dir := filepath.Dir(path)
+
+	err := os.MkdirAll(dir, os.ModePerm)
+	if err != nil {
+		return err
+	}
+
+	file, err := os.Create(path)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	return nil
 }
 
 func CreateDir(path string) error {
