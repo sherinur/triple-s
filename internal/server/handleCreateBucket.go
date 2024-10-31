@@ -10,7 +10,6 @@ import (
 )
 
 func (s *Server) HandleCreateBucket(w http.ResponseWriter, r *http.Request) {
-	// utils.CreateDir(s.config.data_directory)
 	bucketName := r.PathValue("BucketName")
 
 	// bucket name validation

@@ -94,3 +94,13 @@ func GetExecPath() (string, error) {
 	}
 	return execPath, nil
 }
+
+// RemoveValue() takes slice of string and index as argument
+// and removes the element in this index
+func RemoveValue(records [][]string, index int) [][]string {
+	if index < 0 || index >= len(records) {
+		return records
+	}
+
+	return append(records[:index], records[index+1:]...)
+}

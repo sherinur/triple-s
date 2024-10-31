@@ -1,7 +1,6 @@
 package server
 
 import (
-	"encoding/xml"
 	"net/http"
 
 	"triple-s/internal/buckets"
@@ -59,9 +58,6 @@ func (s *Server) HandleGetBucket(w http.ResponseWriter, r *http.Request) {
 	// Searching for a bucket in metadata records
 	bucketIndex, found := csvutil.FindInSlice(bucketName, records)
 	if found {
-		w.WriteHeader(http.StatusOK)
-		w.Header().Set("Content-Type", "application/xml")
-
 		bucketValues := records[bucketIndex]
 		bucket, err := buckets.ConvertArrToBucket(bucketValues)
 		if err != nil {
@@ -74,15 +70,8 @@ func (s *Server) HandleGetBucket(w http.ResponseWriter, r *http.Request) {
 			Bucket: bucket,
 		}
 
-		// formatting to xml
-		output, err := xml.MarshalIndent(getBucketResult, "", "  ")
-		if err != nil {
-			s.logger.PrintfErrorMsg("error encoding XML: " + err.Error())
-			s.WriteErrorResponse(http.StatusInternalServerError, "Response formatting error", "Please check server logs and file permissions.", w, r)
-			return
-		}
-
-		w.Write(output)
+		// Write response - > StatusOK and XML of result to the body
+		s.WriteXMLResponse(http.StatusOK, getBucketResult, w, r)
 	} else {
 		s.WriteErrorResponse(http.StatusNotFound, "Bucket not found", "The requested bucket could not be found.", w, r)
 	}

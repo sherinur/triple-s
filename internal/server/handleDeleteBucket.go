@@ -2,79 +2,107 @@ package server
 
 import (
 	"net/http"
+
+	"triple-s/internal/utils"
+	"triple-s/pkg/csvutil"
 )
 
 func (s *Server) HandleDeleteBucket(w http.ResponseWriter, r *http.Request) {
-	// 	utils.CreateDir(s.config.data_directory)
-	// 	bucketName := r.PathValue("BucketName")
+	bucketName := r.PathValue("BucketName")
 
-	// 	records, err := utils.ParseCSV("./data/buckets.csv")
-	// 	if err != nil {
-	// 		s.logger.PrintfErrorMsg("error reading CSV: " + err.Error())
-	// 		w.WriteHeader(http.StatusInternalServerError)
-	// 		return
-	// 	}
+	// checking the directory and creating if not exists
+	if exists, err := utils.FileExists(s.config.data_directory); err != nil {
+		s.logger.PrintfErrorMsg("error checking directory: " + err.Error())
+		s.WriteErrorResponse(http.StatusInternalServerError, "Directory Initialization Error", "Please check server logs and directory permissions.", w, r)
+		return
+	} else if !exists {
+		if err := utils.CreateDir(s.config.data_directory); err != nil {
+			s.logger.PrintfErrorMsg("error creating directory: " + err.Error())
+			s.WriteErrorResponse(http.StatusInternalServerError, "Directory Initialization Error", "Please check server logs and directory permissions.", w, r)
 
-	// 	// checking if bucket exists
-	// 	isBucketExists := utils.FindItemByName(bucketName, records)
-	// 	if !isBucketExists {
-	// 		w.WriteHeader(http.StatusNotFound)
+			// debug log
+			s.logger.PrintfDebugMsg("(404 Not Found) Bucket with name '" + bucketName + "' does not exist")
+			return
+		}
+	}
 
-	// 		w.Header().Set("Content-Type", "application/xml")
+	// checking the bucket metadata and creating if not exists
+	metadataPath := s.config.data_directory + "/buckets.csv"
 
-	// 		errorResponse := types.NewErrorResponse("Bucket Not Found", "The specified bucket does not exist.")
-	// 		output, err := xml.MarshalIndent(errorResponse, "", "  ")
-	// 		if err != nil {
-	// 			s.logger.PrintfErrorMsg("error encoding XML: " + err.Error())
-	// 			w.WriteHeader(http.StatusInternalServerError)
-	// 			return
-	// 		}
+	if exists, err := utils.FileExists(metadataPath); err != nil {
+		s.logger.PrintfErrorMsg("error checking file: " + err.Error())
+		s.WriteErrorResponse(http.StatusInternalServerError, "Metadata Error", "Please check server logs and file permissions.", w, r)
+	} else if !exists {
+		if err := utils.CreateFile(metadataPath); err != nil {
+			s.logger.PrintfErrorMsg("error creating file: " + err.Error())
+			s.WriteErrorResponse(http.StatusInternalServerError, "Metadata Creation Error", "Please check server logs and file permissions.", w, r)
+			return
+		}
+	}
 
-	// 		w.Write(output)
+	// Opening CSV metadata file
+	file, err := csvutil.OpenCSVForRead(metadataPath)
+	if err != nil {
+		s.logger.PrintfErrorMsg("error opening CSV file: " + err.Error())
+		s.WriteErrorResponse(http.StatusInternalServerError, "File Opening Error", "Please check server logs and file permissions.", w, r)
+		return
+	}
 
-	// 		s.logger.PrintfDebugMsg("(404 Not Found) Bucket with name '" + bucketName + "' does not exist")
+	// Parsing CSV
+	records, err := file.ReadAllRecords()
+	if err != nil {
+		s.logger.PrintfErrorMsg("error opening CSV file: " + err.Error())
+		s.WriteErrorResponse(http.StatusInternalServerError, "File Reading Error", "Please check server logs and file permissions.", w, r)
+		return
+	}
+	file.Close()
 
-	// 		return
-	// 	}
+	// Searching for a bucket in metadata records
+	bucketIndex, found := csvutil.FindInSlice(bucketName, records)
+	if found {
+		bucketDirName := s.config.data_directory + "/" + bucketName
 
-	// 	// checking if bucket empty
-	// 	isBucketEmpty, err := utils.IsDirEmpty("./data/" + bucketName)
-	// 	if err != nil {
-	// 		s.logger.PrintfErrorMsg("error of IsDirEmpty(): " + err.Error())
-	// 		w.WriteHeader(http.StatusInternalServerError)
-	// 		return
-	// 	}
+		isDirEmpty, err := utils.IsDirEmpty(bucketDirName)
+		if err != nil {
+			s.logger.PrintfErrorMsg("error of IsDirEmpty(): " + err.Error())
+			s.WriteErrorResponse(http.StatusInternalServerError, "Bucket Deleting Error", "Please check server logs and file permissions.", w, r)
+			return
+		}
 
-	// 	if !isBucketEmpty {
-	// 		w.WriteHeader(http.StatusConflict)
+		// deleting bucket directory
+		if !isDirEmpty {
+			s.WriteErrorResponse(http.StatusConflict, "Bucket is not empty", "The specified bucket is not empty.", w, r)
 
-	// 		w.Header().Set("Content-Type", "application/xml")
+			s.logger.PrintfDebugMsg("(409 Conflict) Bucket with name '" + bucketName + "' is not empty")
+			return
+		} else {
+			utils.RemoveDir(bucketDirName)
+		}
 
-	// 		errorResponse := types.NewErrorResponse("Bucket is not empty", "The specified bucket is not empty.")
-	// 		output, err := xml.MarshalIndent(errorResponse, "", "  ")
-	// 		if err != nil {
-	// 			s.logger.PrintfErrorMsg("error encoding XML: " + err.Error())
-	// 			w.WriteHeader(http.StatusInternalServerError)
-	// 			return
-	// 		}
+		// deleting bucket info from records
+		records = utils.RemoveValue(records, bucketIndex)
 
-	// 		w.Write(output)
+		// opening metadata to rewrite
+		newMetadata, err := csvutil.OpenCSVForWrite(metadataPath)
+		if err != nil {
+			s.logger.PrintfErrorMsg("error opening CSV file: " + err.Error())
+			s.WriteErrorResponse(http.StatusInternalServerError, "File Opening Error", "Please check server logs and file permissions.", w, r)
+			return
+		}
 
-	// 		s.logger.PrintfDebugMsg("(409 Conflict) Bucket with name '" + bucketName + "' is not empty")
+		// rewriting
+		newMetadata.RecordsToCSV(records)
 
-	// 		return
-	// 	}
+		// status
+		w.WriteHeader(http.StatusNoContent)
 
-	// 	for i, record := range records {
-	// 		if record[0] == bucketName {
-	// 			records = append(records[:i], records[i+1:]...)
-	// 			break
-	// 		}
-	// 	}
+		// debug log
+		s.logger.PrintfDebugMsg("(204 No Content) Bucket with the name '" + bucketName + "' is deleted")
+	} else {
+		// debug log
+		s.logger.PrintfDebugMsg("(404 Not Found) Bucket with name '" + bucketName + "' does not exist")
 
-	// 	utils.WriteCSVbyArr(records, false)
-	// 	utils.RemoveDir("./data/" + bucketName)
-
-	// s.logger.PrintfDebugMsg("(204 No Content) Bucket with the name '" + bucketName + "' is deleted")
-	// w.WriteHeader(http.StatusNoContent)
+		// info response
+		s.WriteErrorResponse(http.StatusNotFound, "Bucket not found", "The requested bucket could not be found.", w, r)
+	}
 }

@@ -200,6 +200,18 @@ func IsDirEmpty(path string) (bool, error) {
 	return len(entries) == 0, nil
 }
 
+func RemoveDir(path string) error {
+	if path == "" {
+		return fmt.Errorf("filepath to the directory is empty")
+	}
+
+	if err := os.RemoveAll(path); err != nil {
+		return fmt.Errorf("error of RemoveDir: %w", err)
+	}
+
+	return nil
+}
+
 func main() {
 	if len(os.Args) > 1 {
 		switch os.Args[1] {
@@ -341,6 +353,26 @@ func main() {
 					os.Exit(1)
 				}
 				fmt.Println(isDirEmpty)
+			}
+		case "rmdir":
+			if len(os.Args) > 2 {
+				path := os.Args[2]
+
+				isDirEmpty, err := IsDirEmpty(path)
+				if err != nil {
+					fmt.Println(err)
+					os.Exit(1)
+				}
+
+				if isDirEmpty {
+					err = RemoveDir(path)
+					if err != nil {
+						fmt.Println(err)
+						os.Exit(1)
+					}
+				} else {
+					fmt.Println("Dir is not empty.")
+				}
 			}
 
 		default:
