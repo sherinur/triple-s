@@ -46,3 +46,20 @@ func (s *Server) WriteInfoResponse(httpStatus int, message string, w http.Respon
 
 	return nil
 }
+
+func (s *Server) WriteXMLResponse(httpStatus int, any interface{}, w http.ResponseWriter, r *http.Request) error {
+	w.WriteHeader(httpStatus)
+
+	w.Header().Set("Content-Type", "application/xml")
+
+	output, err := xml.MarshalIndent(any, "", "  ")
+	if err != nil {
+		s.logger.PrintfErrorMsg("error encoding XML: " + err.Error())
+		w.WriteHeader(http.StatusInternalServerError)
+		return err
+	}
+
+	w.Write(output)
+
+	return nil
+}
