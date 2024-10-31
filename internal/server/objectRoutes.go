@@ -191,7 +191,7 @@ func (s *Server) HandlePutObject(w http.ResponseWriter, r *http.Request) {
 		updatedObjectsFile.Close()
 	}
 
-	// Putting object content
+	// Writing object content
 	contentPath := bucketDirPath + "/" + objectKey
 	contentFile, err := os.Create(contentPath)
 	if err != nil {
@@ -209,7 +209,7 @@ func (s *Server) HandlePutObject(w http.ResponseWriter, r *http.Request) {
 	}
 
 	s.WriteInfoResponse(http.StatusOK, "The object has been successfully stored.", w, r)
-	s.logger.PrintfInfoMsg("Putting object with the key '" + objectKey + "'")
+	s.logger.PrintfDebugMsg("Putting object with the key '" + objectKey + "'")
 }
 
 func (s *Server) HandleGetObject(w http.ResponseWriter, r *http.Request) {
