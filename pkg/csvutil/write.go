@@ -23,5 +23,12 @@ func (csvFile *CSVFile) AppendToCSV(record []string) error {
 	if err := csvFile.Writer.Write(record); err != nil {
 		return fmt.Errorf("can not append record to CSV file: %w", err)
 	}
+
+	csvFile.Writer.Flush()
+
+	if err := csvFile.Writer.Error(); err != nil {
+		return fmt.Errorf("error flushing CSV writer: %w", err)
+	}
+
 	return nil
 }

@@ -102,27 +102,4 @@ func (s *Server) HandleCreateBucket(w http.ResponseWriter, r *http.Request) {
 
 	// Writing info response
 	s.WriteInfoResponse(http.StatusOK, "Bucket has been successfully created", w, r)
-
-	// err = utils.CreateBucket(bucketName)
-	// if err != nil {
-	// 	w.WriteHeader(http.StatusInternalServerError)
-	// 	s.logger.PrintfErrorMsg(err.Error())
-	// 	return
-	// }
-
-	// s.logger.PrintfDebugMsg("Creation of bucket with the name '" + bucketName + "'")
-
-	// w.WriteHeader(http.StatusOK)
-
-	// w.Header().Set("Content-Type", "application/xml")
-
-	// infoResponse := types.NewInfoResponse("Bucket has been successfully created")
-	// output, err := xml.MarshalIndent(infoResponse, "", "  ")
-	// if err != nil {
-	// 	s.logger.PrintfErrorMsg("error encoding XML: " + err.Error())
-	// 	w.WriteHeader(http.StatusInternalServerError)
-	// 	return
-	// }
-
-	// w.Write(output)
 }
