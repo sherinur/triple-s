@@ -72,7 +72,7 @@ func IsUniqueBucketName(name string, records [][]string) bool {
 	return true
 }
 
-func IsValidBucketName(name string) bool {
+func ValidateBucketName(name string) bool {
 	if len(name) < 3 || len(name) > 63 {
 		return false
 	}
