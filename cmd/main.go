@@ -30,7 +30,7 @@ func CustomUsage() {
 
 func init() {
 	flag.StringVar(&port, "port", "4400", "Port number")
-	flag.StringVar(&dir, "dir", ".", "Path to the directory")
+	flag.StringVar(&dir, "dir", "./data", "Path to the directory")
 	flag.StringVar(&configPath, "cfg", "configs/server.yaml", "Path to the config file")
 
 	flag.Usage = CustomUsage

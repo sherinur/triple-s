@@ -13,8 +13,6 @@ import (
 	"triple-s/pkg/csvutil"
 )
 
-// ? CONTINUE HERE
-// ! Не пишется objects.csv
 func (s *Server) HandlePutObject(w http.ResponseWriter, r *http.Request) {
 	// Values from endpoint
 	bucketName := r.PathValue("BucketName")
@@ -114,6 +112,7 @@ func (s *Server) HandlePutObject(w http.ResponseWriter, r *http.Request) {
 	if exists, err := utils.FileExists(objectsMetadataPath); err != nil {
 		s.logger.PrintfErrorMsg("error checking file: " + err.Error())
 		s.WriteErrorResponse(http.StatusInternalServerError, "Metadata Error", "Please check server logs and file permissions.", w, r)
+		return
 	} else if !exists {
 		if err := utils.CreateFile(objectsMetadataPath); err != nil {
 			s.logger.PrintfErrorMsg("error creating file: " + err.Error())
@@ -210,19 +209,4 @@ func (s *Server) HandlePutObject(w http.ResponseWriter, r *http.Request) {
 
 	s.WriteInfoResponse(http.StatusOK, "The object has been successfully stored.", w, r)
 	s.logger.PrintfDebugMsg("Putting object with the key '" + objectKey + "'")
-}
-
-func (s *Server) HandleGetObject(w http.ResponseWriter, r *http.Request) {
-	// TODO: Check if the bucket exists
-	// TODO: Check if the object exists
-	// TODO: Return the binary content of file
-	// TODO: Set Content-Type header
-}
-
-func (s *Server) HandleDeleteObject(w http.ResponseWriter, r *http.Request) {
-	// TODO: Check if the bucket exists
-	// TODO: Check if the object exists
-	// TODO: Delete object file
-	// TODO: Delete object metadata
-	w.WriteHeader(http.StatusNoContent)
 }
