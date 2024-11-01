@@ -19,7 +19,7 @@ type Response struct {
 var waitingForFile map[int64]string // Хранит контекст команды `put_object`, ожидая файл
 
 func main() {
-	bot, err := tgbotapi.NewBotAPI("8096022837:AAH89lsxMgRGu_HqyzPKu9hAsEsbNi972q8")
+	bot, err := tgbotapi.NewBotAPI("...")
 	if err != nil {
 		log.Panic(err)
 	}
