@@ -1,37 +1,28 @@
 package objects
 
 import (
+	"regexp"
+	"strings"
 	"time"
 
 	"triple-s/internal/types"
 )
 
-func CreateObject(bucketName, objectKey, size, contentType string) error {
-	// object := types.NewObject(objectKey, size, contentType)
+func ValidateObjectKey(objectKey string) bool {
+	if len(objectKey) == 0 || len(objectKey) > 1024 {
+		return false
+	}
 
-	// // Проверяем и создаем директорию для объекта, если она отсутствует
-	// objectDirPath := "./data/" + bucketName
-	// if err := os.MkdirAll(objectDirPath, os.ModePerm); err != nil {
-	// 	return fmt.Errorf("error creating object directory: %w", err)
-	// }
+	validKeyPattern := regexp.MustCompile(`^[\w.\-\/]+$`)
+	if !validKeyPattern.MatchString(objectKey) {
+		return false
+	}
 
-	// csvWriter, file, err := OpenCSV(objectDirPath+"/objects.csv", true)
-	// if err != nil {
-	// 	return fmt.Errorf("error of opening or creating a bucket metadata: %w", err)
-	// }
-	// defer func() {
-	// 	file.Close()
-	// }()
+	if strings.HasPrefix(objectKey, "/") || strings.HasSuffix(objectKey, "/") {
+		return false
+	}
 
-	// data := ConvertObjectToArr(object)
-	// if err := csvWriter.Write(data); err != nil {
-	// 	return fmt.Errorf("error of writing an object metadata: %w", err)
-	// }
-
-	// // Сбрасываем данные для записи в файл
-	// csvWriter.Flush()
-
-	return nil
+	return true
 }
 
 func ConvertObjectToArr(o *types.Object) []string {

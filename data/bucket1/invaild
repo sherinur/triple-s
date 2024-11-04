@@ -1,0 +1,3 @@
+#!/bin/bash
+
+audio=`pactl load-module module detect`

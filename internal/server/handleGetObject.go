@@ -124,7 +124,7 @@ func (s *Server) HandleGetObject(w http.ResponseWriter, r *http.Request) {
 
 	objectsFile.Close()
 
-	// searching for a object in objects metadata records to overwrite
+	// searching for an object in objects metadata records to overwrite
 	objectRecordIndex, objectFound := csvutil.FindInSlice(objectKey, objectRecords)
 	if !objectFound {
 		// debug log
