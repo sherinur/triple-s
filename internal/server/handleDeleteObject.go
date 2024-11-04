@@ -2,13 +2,13 @@ package server
 
 import (
 	"net/http"
+
 	"triple-s/internal/utils"
 	"triple-s/pkg/csvutil"
 )
 
 func (s *Server) HandleDeleteObject(w http.ResponseWriter, r *http.Request) {
-	// TODO: Check if the bucket exists
-	// Values from endpoint
+	// getting values from endpoint
 	bucketName := r.PathValue("BucketName")
 	objectKey := r.PathValue("ObjectKey")
 
@@ -147,8 +147,17 @@ func (s *Server) HandleDeleteObject(w http.ResponseWriter, r *http.Request) {
 	// rewriting
 	newObjectMetadata.RecordsToCSV(objectRecords)
 
+	objectPath := bucketDirPath + "/" + objectKey
+	// deleting object file
+	err = utils.RemoveFile(objectPath)
+	if err != nil {
+		s.logger.PrintfErrorMsg("error deleting file: " + err.Error())
+		s.WriteErrorResponse(http.StatusInternalServerError, "File Deleting Error", "Please check server logs and file permissions.", w, r)
+		return
+	}
+
 	// debug log
-	s.logger.PrintfDebugMsg("(204 No Content) Bucket with the name '" + bucketName + "' is deleted")
+	s.logger.PrintfDebugMsg("(204 No Content) Object with the key '" + objectKey + "' is deleted")
 
 	// status
 	w.WriteHeader(http.StatusNoContent)

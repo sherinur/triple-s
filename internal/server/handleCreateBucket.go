@@ -13,7 +13,7 @@ func (s *Server) HandleCreateBucket(w http.ResponseWriter, r *http.Request) {
 	bucketName := r.PathValue("BucketName")
 
 	// bucket name validation
-	if !buckets.ValidateBucketName(bucketName) {
+	if !buckets.ValidateBucketName(bucketName) || bucketName == "triple-s" || bucketName == "buckets.csv" || bucketName == "objects.csv" {
 		s.logger.PrintfDebugMsg("(400 Bad Request) Bucket with name '" + bucketName + "' is not valid")
 		s.WriteErrorResponse(http.StatusBadRequest, "Bucket name must be valid", "The provided bucket name is not valid.", w, r)
 		return

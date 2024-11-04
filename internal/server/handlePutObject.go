@@ -18,8 +18,8 @@ func (s *Server) HandlePutObject(w http.ResponseWriter, r *http.Request) {
 	bucketName := r.PathValue("BucketName")
 	objectKey := r.PathValue("ObjectKey")
 
-	if !objects.ValidateObjectKey(objectKey) {
-		s.WriteErrorResponse(http.StatusBadRequest, "Invalid Object Key", "Object key must be between 1 and 1024 characters and cannot contain invalid characters.", w, r)
+	if objectKey == "objects.csv" || objectKey == "buckets.csv" || objectKey == "triple-s" || !objects.ValidateObjectKey(objectKey) {
+		s.WriteErrorResponse(http.StatusBadRequest, "Invalid Object Key", "The provided object key is not valid.", w, r)
 		s.logger.PrintfDebugMsg("(400 Bad Request) Invalid object key")
 		return
 	}

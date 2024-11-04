@@ -64,6 +64,18 @@ func RemoveDir(path string) error {
 	return nil
 }
 
+func RemoveFile(path string) error {
+	if path == "" {
+		return fmt.Errorf("filepath to the file is empty")
+	}
+
+	if err := os.Remove(path); err != nil {
+		return fmt.Errorf("error of RemoveFile: %w", err)
+	}
+
+	return nil
+}
+
 // DirEmpty() takes path of the directory as an argument.
 // If directory empty, returns true and nil. False and nil in other case.
 // Returns false and error, if error occurs.
